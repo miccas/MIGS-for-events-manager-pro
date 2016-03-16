@@ -72,7 +72,7 @@ class EM_Gateway_Migs extends EM_Gateway {
 				$return['message'] = get_option('em_migs_booking_feedback');	
 				$migs_url = $this->get_migs_url();	
 				$migs_vars = $this->get_migs_vars($EM_Booking);	
-				$md5Hash = "XXXXXXXXXXXXXXXXXXXXXXXXXXX";
+				$md5Hash = get_option('em_migs_secureHash' );
 				$final=array(	
 					'vpc_Version' => $migs_vars['vpc_Version'],
 					'vpc_Command' => $migs_vars['vpc_Command'],
@@ -158,7 +158,7 @@ class EM_Gateway_Migs extends EM_Gateway {
 		    if( $pending_payments == 0 ){
 				//user owes money!
 				$paypal_vars = $this->get_migs_vars($EM_Booking);
-				$md5Hash = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+				$md5Hash = get_option('em_migs_secureHash' );
 				$final=array(	
 					'vpc_Version' => $migs_vars['vpc_Version'],
 					'vpc_Command' => $migs_vars['vpc_Command'],
@@ -241,16 +241,16 @@ class EM_Gateway_Migs extends EM_Gateway {
 			'business' => get_option('em_'. $this->gateway . "_email" ), 
 			'cmd' => '_cart',
 			'upload' => 1,
-			'currency_code' => get_option('dbem_bookings_currency', 'USD'),
+			'currency_code' => get_option('dbem_bookings_currency', 'AUD'),
 			'notify_url' =>$notify_url,
 			'custom' => $EM_Booking->booking_id.':'.$EM_Booking->event_id,
 			'charset' => 'UTF-8',
 		    'bn'=>'NetWebLogic_SP',
 			'vpc_Version' => '1',
 			'vpc_Command' => 'pay',
-			'vpc_AccessCode' => 'XXXXXXXX',
+			'vpc_AccessCode' => get_option('em_migs_accessCode'),
 			'vpc_MerchTxnRef' => $EM_Booking->booking_id.'_'.$EM_Booking->event_id.'_'.date("ymds").'CCCEVENTS',
-			'vpc_Merchant' =>  '0000000000000',
+			'vpc_Merchant' =>  get_option('em_migs_merchantID'),
 			'vpc_OrderInfo' => $EM_Booking->booking_id.'_'.$EM_Booking->event_id.'_'.date("ymds"),
 			'vpc_Amount' => 10000,
 			'vpc_Locale' => 'en',
@@ -259,7 +259,9 @@ class EM_Gateway_Migs extends EM_Gateway {
 		if( get_option('em_'. $this->gateway . "_lc" ) ){
 		    $migs_vars['lc'] = get_option('em_'. $this->gateway . "_lc" );
 		}
-		$migs_vars['vpc_SecureHash']='test';	
+		$migs_vars['vpc_SecureHash']=get_option('em_migs_secureHash');
+		//mail("contact@michaelcasha.com","MIGS VAR",$migs_vars['vpc_SecureHash']);
+
 		//address fields`and name/email fields to prefill on checkout page (if available)
 		$migs_vars['email'] = $EM_Booking->get_person()->user_email;
 		$migs_vars['first_name'] = $EM_Booking->get_person()->first_name;
@@ -340,7 +342,7 @@ class EM_Gateway_Migs extends EM_Gateway {
 			global $wpdb;
 			$authorised = false;
 			
-			$md5Hash = "XXXXXXXXXXXXXXXXXXXXXXXXXXX";
+			$md5Hash = get_option('em_migs_secureHash' );
 			$txnSecureHash = $_REQUEST['vpc_SecureHash'];	
 			$info=$this->responseDescription($_REQUEST['vpc_TxnResponseCode']);			
 			$order_id = explode( '_', $_REQUEST['vpc_MerchTxnRef'] );
@@ -561,19 +563,19 @@ class EM_Gateway_Migs extends EM_Gateway {
 		<tbody>
 		  <tr valign="top">
 			  <th scope="row"><?php _e('Migs Merchant ID', 'em-pro') ?></th>
-				  <td><input type="text" name="em_migs_em" value="<?php esc_attr_e( get_option('em_'. $this->gateway . "_merchantID" )); ?>" />
+				  <td><input type="text" name="em_migs_merchantID" value="<?php esc_attr_e( get_option('em_migs_merchantID' )); ?>" />
 				  <br />
 			  </td>
 		  </tr>
 		  <tr valign="top">
 			  <th scope="row"><?php _e('Migs Access Code', 'em-pro') ?></th>
-				  <td><input type="text" name="em_migs_ac" value="<?php esc_attr_e( get_option('em_'. $this->gateway . "_accessCode" )); ?>" />
+				  <td><input type="text" name="em_migs_accessCode" value="<?php esc_attr_e( get_option('em_migs_accessCode' )); ?>" />
 				  <br />
 			  </td>
 		  </tr>
 		  <tr valign="top">
 			  <th scope="row"><?php _e('Migs Secure Hash', 'em-pro') ?></th>
-				  <td><input type="text" name="em_migs_sh" value="<?php esc_attr_e( get_option('em_'. $this->gateway . "_secureHash" )); ?>" />
+				  <td><input type="text" name="em_migs_secureHash" value="<?php esc_attr_e( get_option('em_migs_secureHash' )); ?>" />
 				  <br />
 			  </td>
 		  </tr>
